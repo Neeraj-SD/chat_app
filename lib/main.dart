@@ -1,21 +1,32 @@
+import 'package:chat_app/Auth/controllers/auth_controller.dart';
+import 'package:chat_app/Auth/views/auth_screen.dart';
+import 'package:chat_app/controller_injector.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 void main() {
-  runApp(const MyApp());
+  ControllerInjector().init();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
+  MyApp({Key? key}) : super(key: key);
+  final AuthController authController = Get.find();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(body: const MyHomePage()),
+      home: Scaffold(
+        body: Obx(() {
+          return authController.authState.value == AuthState.NotAuthenticated
+              ? AuthScreen()
+              : const MyHomePage();
+        }),
+      ),
     );
   }
 }
