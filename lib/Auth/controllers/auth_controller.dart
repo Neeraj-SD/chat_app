@@ -2,48 +2,54 @@
 
 import 'dart:developer';
 
+import 'package:chat_app/Auth/models/user.dart';
+import 'package:chat_app/Auth/repository/auth_repository.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 // ignore: camel_case_types
 enum AuthState { Authenticated, NotAuthenticated }
 
 class AuthController extends GetxController {
-  late final GoogleSignIn googleSignIn;
+  late final AuthRepository repository;
 
   final Rx<AuthState> authState = Rx<AuthState>(AuthState.NotAuthenticated);
   final isLoading = false.obs;
 
+  final email = ''.obs;
+  final authToken = ''.obs;
+  final uid = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
-    googleSignIn = GoogleSignIn();
+    log('auth init called');
+    repository = Get.find<AuthRepository>();
   }
 
   @override
   void onReady() {
     super.onReady();
+    log('auth ready called');
+    autoLogin();
   }
 
   @override
   void onClose() {}
 
+  void autoLogin() async {
+    isLoading.value = true;
+    authState.value = await repository.silentLogin(this);
+    isLoading.value = false;
+  }
+
   void signIn() async {
-    try {
-      isLoading.value = true;
-      final res = await googleSignIn.signIn();
-      GoogleSignInAuthentication googleKey = await res!.authentication;
-      authState.value = AuthState.Authenticated;
-      log(googleKey.idToken.toString());
-    } finally {
-      // TODO
-      isLoading.value = false;
-    }
+    isLoading.value = true;
+    authState.value = await repository.login(this);
+    isLoading.value = false;
   }
 
   void signout() async {
-    isLoading.value = true;
-    final res = await googleSignIn.signOut();
-    isLoading.value = false;
+    await repository.signout();
+    authState.value = AuthState.NotAuthenticated;
   }
 }
