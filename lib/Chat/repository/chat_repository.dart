@@ -1,5 +1,6 @@
 // final AuthController controller = Get.find();
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -37,13 +38,45 @@ class ChatRepository {
       print(response.body);
       ChatModel chatResponse = chatModelFromJson(response.body);
       Chat chat = Chat.fromJson(chatResponse.toMap());
-      final dbResp = await database.insertTask(chat);
+      final dbResp = await database.insertChat(chat);
       log('dbResp: $dbResp');
+
+      //! Update or Create Chat Room
+      ChatRoom? chatRooom = await database.findChatRoom(chat.to);
+
+      log('chatRoom: $chatRooom');
+
+      if (chatRooom != null) {
+        // Update ChatRoom
+        ChatRoom chatRoom = ChatRoom.fromJson({
+          'id': chatRooom.id,
+          'name': chatRooom.name,
+          'email': chatRooom.email,
+          'picture': chatRooom.picture,
+          'lastMessage': chat.id
+        });
+        final respCreate = await database.updateChatRoom(chatRoom);
+        log('Chat Room updated: ${chatRoom.name} $respCreate');
+      } else {
+        // Create ChatRoom
+        User user = await getContact(chat.to);
+        ChatRoom chatRoom = ChatRoom.fromJson({
+          'id': user.id,
+          'name': user.name,
+          'email': user.email,
+          'picture': user.picture,
+          'lastMessage': chat.id
+        });
+        final respCreate = await database.insertChatRoom(chatRoom);
+        log('Chat Room created: ${chatRoom.name} $respCreate');
+      }
+
+      //!
     }
   }
 
-  Future<List<User>> getAllContacts() async {
-    final String url = '$host/api/users/all';
+  Future<List<ChatRoom>> getAllContacts() async {
+    const String url = '$host/api/users/all';
 
     final response = await http.get(
       Uri.parse(url),
@@ -56,8 +89,30 @@ class ChatRepository {
     if (response.statusCode == 200) {
       print(response.body);
       List<User> users = userListFromJson(response.body);
-      return users;
+      log(users.map((e) => {...e.toMap(), 'lastMessage': ''}).toString());
+      List<ChatRoom> chatRooms = users
+          .map((User e) => ChatRoom.fromJson({...e.toMap(), 'lastMessage': ''}))
+          .toList();
+      return chatRooms;
     }
     return [];
+  }
+
+  Future<User> getContact(String userId) async {
+    final String url = '$host/api/users/$userId';
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': await storage.readToken(),
+      },
+    );
+
+    print(response.body);
+    User user = userFromJson(response.body);
+    return user;
+
+    // return;
   }
 }

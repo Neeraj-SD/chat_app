@@ -372,11 +372,316 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
   }
 }
 
+class ChatRoom extends DataClass implements Insertable<ChatRoom> {
+  final String id;
+  final String name;
+  final String email;
+  final String picture;
+  final String lastMessage;
+  ChatRoom(
+      {required this.id,
+      required this.name,
+      required this.email,
+      required this.picture,
+      required this.lastMessage});
+  factory ChatRoom.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ChatRoom(
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+      email: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}email'])!,
+      picture: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}picture'])!,
+      lastMessage: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_message'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['email'] = Variable<String>(email);
+    map['picture'] = Variable<String>(picture);
+    map['last_message'] = Variable<String>(lastMessage);
+    return map;
+  }
+
+  ChatRoomsCompanion toCompanion(bool nullToAbsent) {
+    return ChatRoomsCompanion(
+      id: Value(id),
+      name: Value(name),
+      email: Value(email),
+      picture: Value(picture),
+      lastMessage: Value(lastMessage),
+    );
+  }
+
+  factory ChatRoom.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChatRoom(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      email: serializer.fromJson<String>(json['email']),
+      picture: serializer.fromJson<String>(json['picture']),
+      lastMessage: serializer.fromJson<String>(json['lastMessage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'email': serializer.toJson<String>(email),
+      'picture': serializer.toJson<String>(picture),
+      'lastMessage': serializer.toJson<String>(lastMessage),
+    };
+  }
+
+  ChatRoom copyWith(
+          {String? id,
+          String? name,
+          String? email,
+          String? picture,
+          String? lastMessage}) =>
+      ChatRoom(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        email: email ?? this.email,
+        picture: picture ?? this.picture,
+        lastMessage: lastMessage ?? this.lastMessage,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ChatRoom(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('email: $email, ')
+          ..write('picture: $picture, ')
+          ..write('lastMessage: $lastMessage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, email, picture, lastMessage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChatRoom &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.email == this.email &&
+          other.picture == this.picture &&
+          other.lastMessage == this.lastMessage);
+}
+
+class ChatRoomsCompanion extends UpdateCompanion<ChatRoom> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> email;
+  final Value<String> picture;
+  final Value<String> lastMessage;
+  const ChatRoomsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.email = const Value.absent(),
+    this.picture = const Value.absent(),
+    this.lastMessage = const Value.absent(),
+  });
+  ChatRoomsCompanion.insert({
+    required String id,
+    required String name,
+    required String email,
+    required String picture,
+    required String lastMessage,
+  })  : id = Value(id),
+        name = Value(name),
+        email = Value(email),
+        picture = Value(picture),
+        lastMessage = Value(lastMessage);
+  static Insertable<ChatRoom> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? email,
+    Expression<String>? picture,
+    Expression<String>? lastMessage,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+      if (picture != null) 'picture': picture,
+      if (lastMessage != null) 'last_message': lastMessage,
+    });
+  }
+
+  ChatRoomsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String>? email,
+      Value<String>? picture,
+      Value<String>? lastMessage}) {
+    return ChatRoomsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      picture: picture ?? this.picture,
+      lastMessage: lastMessage ?? this.lastMessage,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (picture.present) {
+      map['picture'] = Variable<String>(picture.value);
+    }
+    if (lastMessage.present) {
+      map['last_message'] = Variable<String>(lastMessage.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChatRoomsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('email: $email, ')
+          ..write('picture: $picture, ')
+          ..write('lastMessage: $lastMessage')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChatRoomsTable extends ChatRooms
+    with TableInfo<$ChatRoomsTable, ChatRoom> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChatRoomsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String?> id = GeneratedColumn<String?>(
+      'id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 32),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 100),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  final VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String?> email = GeneratedColumn<String?>(
+      'email', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 100),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  final VerificationMeta _pictureMeta = const VerificationMeta('picture');
+  @override
+  late final GeneratedColumn<String?> picture = GeneratedColumn<String?>(
+      'picture', aliasedName, false,
+      additionalChecks: GeneratedColumn.checkTextLength(
+          minTextLength: 6, maxTextLength: 1000),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  final VerificationMeta _lastMessageMeta =
+      const VerificationMeta('lastMessage');
+  @override
+  late final GeneratedColumn<String?> lastMessage = GeneratedColumn<String?>(
+      'last_message', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 32),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, email, picture, lastMessage];
+  @override
+  String get aliasedName => _alias ?? 'chat_rooms';
+  @override
+  String get actualTableName => 'chat_rooms';
+  @override
+  VerificationContext validateIntegrity(Insertable<ChatRoom> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+          _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
+    if (data.containsKey('picture')) {
+      context.handle(_pictureMeta,
+          picture.isAcceptableOrUnknown(data['picture']!, _pictureMeta));
+    } else if (isInserting) {
+      context.missing(_pictureMeta);
+    }
+    if (data.containsKey('last_message')) {
+      context.handle(
+          _lastMessageMeta,
+          lastMessage.isAcceptableOrUnknown(
+              data['last_message']!, _lastMessageMeta));
+    } else if (isInserting) {
+      context.missing(_lastMessageMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChatRoom map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ChatRoom.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $ChatRoomsTable createAlias(String alias) {
+    return $ChatRoomsTable(attachedDatabase, alias);
+  }
+}
+
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final $ChatsTable chats = $ChatsTable(this);
+  late final $ChatRoomsTable chatRooms = $ChatRoomsTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [chats];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [chats, chatRooms];
 }

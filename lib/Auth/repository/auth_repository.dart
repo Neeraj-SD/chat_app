@@ -72,12 +72,14 @@ class AuthRepository {
       final String cachedUid = await storage.readUid();
       print('cached $cached');
       if (cached.isEmpty) {
-        print('Reading from cache');
+        // print('Reading from cache');
         return AuthState.NotAuthenticated;
       }
 
       // Global.AUTH_TOKEN = cached.xAuthToken;
       controller.uid.value = cachedUid;
+
+      log('cached UID: $cachedUid');
 
       return AuthState.Authenticated;
     } catch (ex) {

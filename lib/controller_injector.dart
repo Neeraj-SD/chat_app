@@ -1,5 +1,6 @@
 import 'package:chat_app/Auth/repository/auth_repository.dart';
 import 'package:chat_app/Chat/controllers/chat_controller.dart';
+import 'package:chat_app/Chat/controllers/chat_overview_controller.dart';
 import 'package:chat_app/Chat/controllers/redis_controller.dart';
 import 'package:chat_app/core/Database/database.dart';
 import 'package:chat_app/core/Redis/redis_service.dart';
@@ -13,7 +14,8 @@ class ControllerInjector {
   Future<void> init() async {
     Get.lazyPut(() => AuthController());
     Get.lazyPut(() => RedisController());
-    Get.lazyPut(() => ChatController());
+    Get.lazyPut(() => ChatController(), fenix: true);
+    Get.lazyPut(() => ChatOverviewController());
 
     Get.lazyPut(() => AuthRepository());
     Get.lazyPut(() => ChatRepository());

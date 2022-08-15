@@ -2,36 +2,38 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'package:chat_app/Auth/controllers/auth_controller.dart';
 import 'package:chat_app/Chat/controllers/chat_controller.dart';
-import 'package:chat_app/Chat/controllers/redis_controller.dart';
 import 'package:chat_app/core/Database/database.dart';
-import 'package:chat_app/core/Redis/redis_service.dart';
 
-import '../../Auth/models/user.dart';
-import '../models/chat.dart';
-
-class HomeScreen extends StatelessWidget {
-  HomeScreen({
+class ChatScreen extends StatelessWidget {
+  ChatScreen({
     Key? key,
     required this.user,
   }) : super(key: key);
 
-  final User user;
+  final ChatRoom user;
 
   final AuthController authController = Get.find();
-  final RedisController redisController = Get.find();
+  final ChatController chatController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          title: Text(user.name),
+          centerTitle: false,
+          leading: Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(user.picture),
+            ),
+          ),
+          leadingWidth: 35,
           actions: [
             IconButton(
                 onPressed: () => authController.signout(),
@@ -46,17 +48,21 @@ class HomeScreen extends StatelessWidget {
                 height: 10,
               ),
               const Text('Chats'),
-              Obx(
-                () => Expanded(
+              Obx(() {
+                log('chats from screen: ${chatController.chats.value}');
+
+                return Expanded(
                   child: ListView.builder(
                     reverse: true,
-                    itemCount: redisController.chats.value.length,
+                    itemCount: chatController.chats.value.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) =>
-                        ChatBubble(chat: redisController.chats.value[index]),
+                    itemBuilder: (context, index) => ChatBubble(
+                      chat: chatController.chats.value[index],
+                      user: user,
+                    ),
                   ),
-                ),
-              ),
+                );
+              }),
               NewMessage(toUserId: user.id),
             ],
           ),
@@ -69,9 +75,12 @@ class HomeScreen extends StatelessWidget {
 class ChatBubble extends StatelessWidget {
   final AuthController authController = Get.find();
 
+  final ChatRoom user;
+
   final Chat chat;
   ChatBubble({
     Key? key,
+    required this.user,
     required this.chat,
   }) : super(key: key);
 
@@ -87,10 +96,11 @@ class ChatBubble extends StatelessWidget {
       children: [
         if (!isMe(chat.from))
           CircleAvatar(
-            radius: 25,
+            backgroundImage: NetworkImage(user.picture),
+            radius: 16,
           ),
         Container(
-          margin: EdgeInsets.only(
+          margin: const EdgeInsets.only(
             top: 18,
             left: 5,
           ),

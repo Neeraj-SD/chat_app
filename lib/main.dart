@@ -1,11 +1,9 @@
 import 'package:chat_app/Auth/controllers/auth_controller.dart';
 import 'package:chat_app/Auth/views/auth_screen.dart';
 import 'package:chat_app/Chat/views/chat_overview_screen.dart';
-import 'package:chat_app/Chat/views/home_screen.dart';
 import 'package:chat_app/controller_injector.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
